@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>易联直播ROI计算</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 933px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gold-coin {
+            color: #FFD700;
+            margin: 0 12px;
+            font-size: 32px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .calculator-body {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 0.7fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 1200px) {
+            .calculator-body {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section, .result-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4b6cb7;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-title i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        .input-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .input-container {
+            margin-bottom: 15px;
+        }
+        
+        .input-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        .input-container input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .input-container input:focus {
+            border-color: #4b6cb7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.2);
+        }
+        
+        .result-main {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-label i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            font-size: 18px;
+            color: #4b6cb7;
+        }
+        
+        .multiples-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .multiples-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .multiple-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            min-height: 45px;
+        }
+        
+        .multiple-label {
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .multiple-value {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .below-break-even {
+            color: #27ae60;
+        }
+        
+        .above-break-even {
+            color: #e74c3c;
+        }
+        
+        .lower-multiples {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .lower-multiple-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            min-height: 54px;
+            justify-content: center;
+        }
+        
+        .lower-multiple-label {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        
+        .lower-multiple-value {
+            font-weight: 600;
+            font-size: 14px;
+            color: #27ae60;
+        }
+        
+        .break-even-center {
+            background: #e3f2fd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #4b6cb7;
+            grid-column: 1 / span 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .break-even-label {
+            font-weight: 600;
+            font-size: 16px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        .break-even-value {
+            font-weight: 700;
+            font-size: 18px;
+            color: #000;
+        }
+        
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(to right, #e3f2fd, #bbdefb);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #2c3e50;
+            grid-column: 1 / -1;
+        }
+        
+        .explanation h3 {
+            margin-bottom: 10px;
+            color: #182848;
+            display: flex;
+            align-items: center;
+        }
+        
+        .explanation h3 i {
+            margin-right: 10px;
+        }
+        
+        .explanation p {
+            margin-bottom: 8px;
+        }
+        
+        .formula {
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .toggle-text {
+            margin-right: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4b6cb7;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .custom-roi-input {
+            display: none;
+            align-items: center;
+            margin-left: 10px;
+        }
+        
+        .custom-roi-input input {
+            width: 120px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+        }
+        
+        .custom-roi-input.active {
+            display: flex;
+        }
+        
+        .roi-result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .roi-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .roi-result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        
+        .roi-result-label i {
+            margin-right: 10px;
+            color: #4b6cb7;
+        }
+        
+        .roi-result-value {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .positive-profit {
+            color: #e74c3c;
+        }
+        
+        .negative-profit {
+            color: #27ae60;
+        }
+        
+        .positive-roi {
+            color: #e74c3c;
+        }
+        
+        .negative-roi {
+            color: #27ae60;
+        }
+        
+        .neutral-value {
+            color: #4b6cb7;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="header">
+            <h1>ROI计算器 <i class="fas fa-calculator gold-coin"></i></h1>
+        </div>
+        
+        <div class="calculator-body">
+            <div class="input-section">
+                <div class="section-title">
+                    <i class="fas fa-sliders-h"></i>ROI与盈利
+                </div>
+                
+                <div class="input-columns">
+                    <div class="input-column">
+                        <div class="input-container">
+                            <label for="commissionRate">佣金率 (%)</label>
+                            <input type="number" id="commissionRate" min="0" max="100" placeholder="输入佣金率">
+                        </div>
+                        
+                        <div class="input-container">
+                            <label for="inputActualROI">实际ROI</label>
+                            <input type="number" id="inputActualROI" min="0" step="0.01" placeholder="输入实际ROI值">
+                        </div>
+                        
+                        <div class="input-container">
+                            <label for="inputConsumption">消耗额 (元)</label>
+                            <input type="number" id="inputConsumption" min="0" step="0.01" placeholder="输入消耗额">
+                        </div>
+                    </div>
+                    
+                    <div class="input-column">
+                        <div class="input-container">
+                            <label for="returnRate">退货率 (%)</label>
+                            <input type="number" id="returnRate" min="0" max="100" placeholder="输入退货率" value="10">
+                        </div>
+                        
+                        <div class="input-container">
+                            <label for="splitRatio">分成比 (%)</label>
+                            <input type="number" id="splitRatio" min="0" max="100" placeholder="输入分成比" value="100">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-main">
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-balance-scale"></i>起号ROI
+                        </span>
+                        <span class="result-value" id="startupROI">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-shield-alt"></i>保本ROI
+                        </span>
+                        <span class="result-value" id="breakEvenROI">0.00</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">
+                            <i class="fas fa-rocket"></i>牛逼ROI
+                        </span>
+                        <span class="result-value" id="awesomeROI">0.00</span>
+                    </div>
+                </div>
+                
+                <div class="result-main">
+                    <div class="roi-result-item">
+                        <span class="roi-result-label">
+                            <i class="fas fa-coins"></i>收益金额
+                        </span>
+                        <span class="roi-result-value neutral-value" id="profitAmount">0.00</span>
+                    </div>
+                    
+                    <div class="roi-result-item">
+                        <span class="roi-result-label">
+                            <i class="fas fa-percentage"></i>投资回报
+                        </span>
+                        <span class="roi-result-value neutral-value" id="investmentReturnRate">0.00%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <div class="section-title">
+                    <i class="fas fa-chart-line"></i>ROI倍数关系
+                </div>
+                
+                <div class="toggle-container">
+                    <span class="toggle-text" id="toggleLabel">保本ROI</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="roiToggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-text">自定义ROI</span>
+                    <div class="custom-roi-input" id="customRoiContainer">
+                        <input type="number" id="customRoi" min="0" step="0.01" placeholder="输入ROI值">
+                    </div>
+                </div>
+                
+                <div class="multiples-grid" id="multiplesContainer">
+                    <!-- 倍数将通过JavaScript动态生成 -->
+                </div>
+                
+                <div class="lower-multiples" id="lowerMultiplesContainer">
+                    <!-- 低倍数将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            
+            <div class="explanation">
+                <h3><i class="fas fa-info-circle"></i>计算说明</h3>
+                <p>保本ROI = 1 / (佣金率 × 分成比 × (1 - 退货率) × 0.9)</p>
+                <p>起号ROI = 保本ROI × 0.8</p>
+                <p>牛逼ROI = 保本ROI × 1.3</p>
+                <p>收益金额 = (实际ROI - 保本ROI) / 保本ROI × 消耗金额</p>
+                <p>投资回报 = 收益金额 / 消耗额</p>
+                <div class="formula">
+                    <div>倍数计算: 保本ROI × 倍数因子</div>
+                </div>
+                <p>颜色说明: <span style="color: #e74c3c;">红色</span>表示收益金额为正数/投资回报大于0, <span style="color: #27ae60;">绿色</span>表示收益金额为负数/投资回报小于0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取输入元素
+        const commissionRateInput = document.getElementById('commissionRate');
+        const splitRatioInput = document.getElementById('splitRatio');
+        const returnRateInput = document.getElementById('returnRate');
+        const roiToggle = document.getElementById('roiToggle');
+        const toggleLabel = document.getElementById('toggleLabel');
+        const customRoiContainer = document.getElementById('customRoiContainer');
+        const customRoiInput = document.getElementById('customRoi');
+        
+        // 获取结果显示元素
+        const startupROI = document.getElementById('startupROI');
+        const breakEvenROI = document.getElementById('breakEvenROI');
+        const awesomeROI = document.getElementById('awesomeROI');
+        const multiplesContainer = document.getElementById('multiplesContainer');
+        const lowerMultiplesContainer = document.getElementById('lowerMultiplesContainer');
+        
+        // 新增的投资回报率输入元素
+        const inputActualROI = document.getElementById('inputActualROI');
+        const inputConsumption = document.getElementById('inputConsumption');
+        const profitAmount = document.getElementById('profitAmount');
+        const investmentReturnRate = document.getElementById('investmentReturnRate');
+        
+        // 修改倍数因子：第一列从上往下依次是1.1倍-2.0倍；第二列从上往下依次是2.1倍-3.0倍；第三列从上往下依次是3.1倍-4.0倍
+        const column1Multipliers = [1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0];
+        const column2Multipliers = [2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0];
+        const column3Multipliers = [3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0];
+        
+        // 低倍数因子：0.4-0.9倍
+        const lowerMultipliers = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4];
+        
+        // 当前使用的ROI值
+        let currentRoiValue = 0;
+        
+        // 添加输入事件监听器
+        commissionRateInput.addEventListener('input', calculateROI);
+        splitRatioInput.addEventListener('input', calculateROI);
+        returnRateInput.addEventListener('input', calculateROI);
+        roiToggle.addEventListener('change', toggleRoiMode);
+        customRoiInput.addEventListener('input', updateCustomRoi);
+        
+        // 新增的投资回报率输入事件监听器
+        inputActualROI.addEventListener('input', calculateInvestmentReturn);
+        inputConsumption.addEventListener('input', calculateInvestmentReturn);
+        
+        // 添加快捷键支持（回车键切换输入框）
+        commissionRateInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                inputActualROI.focus();  // 先跳到实际ROI
+            }
+        });
+
+        inputActualROI.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                inputConsumption.focus();  // 再跳到消耗额
+            }
+        });
+
+        inputConsumption.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                returnRateInput.focus();
+            }
+        });
+        
+        returnRateInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                splitRatioInput.focus();
+            }
+        });
+        
+        // 切换ROI模式
+        function toggleRoiMode() {
+            if (roiToggle.checked) {
+                toggleLabel.textContent = "自定义ROI";
+                customRoiContainer.classList.add('active');
+                customRoiInput.value = '';
+                updateMultiplesDisplay();
+            } else {
+                toggleLabel.textContent = "保本ROI";
+                customRoiContainer.classList.remove('active');
+                calculateROI();
+            }
+        }
+        
+        // 更新自定义ROI值
+        function updateCustomRoi() {
+            const customValue = parseFloat(customRoiInput.value);
+            if (!isNaN(customValue) && customValue > 0) {
+                currentRoiValue = customValue;
+                updateMultiplesDisplay();
+            }
+        }
+        
+        // 计算投资回报率
+        function calculateInvestmentReturn() {
+            const breakEven = parseFloat(breakEvenROI.textContent);
+            const actualROI = parseFloat(inputActualROI.value);
+            const consumption = parseFloat(inputConsumption.value);
+            
+            if (isNaN(breakEven) || isNaN(actualROI) || isNaN(consumption) || 
+                breakEven <= 0 || consumption <= 0) {
+                profitAmount.textContent = "0.00";
+                investmentReturnRate.textContent = "0.00%";
+                
+                profitAmount.className = 'roi-result-value neutral-value';
+                investmentReturnRate.className = 'roi-result-value neutral-value';
+                return;
+            }
+            
+            // 使用新公式：收益金额=(实际ROI - 保本ROI) / 保本ROI × 消耗金额
+            const profit = (actualROI - breakEven) / breakEven * consumption;
+            const returnRate = profit / consumption;
+            
+            profitAmount.textContent = profit.toFixed(2);
+            investmentReturnRate.textContent = (returnRate * 100).toFixed(2) + "%";
+            
+            if (profit > 0) {
+                profitAmount.className = 'roi-result-value positive-profit';
+            } else if (profit < 0) {
+                profitAmount.className = 'roi-result-value negative-profit';
+            } else {
+                profitAmount.className = 'roi-result-value neutral-value';
+            }
+            
+            if (returnRate > 0) {
+                investmentReturnRate.className = 'roi-result-value positive-roi';
+            } else if (returnRate < 0) {
+                investmentReturnRate.className = 'roi-result-value negative-roi';
+            } else {
+                investmentReturnRate.className = 'roi-result-value neutral-value';
+            }
+        }
+        
+        // 初始化倍数显示
+        function initMultiplesDisplay() {
+            multiplesContainer.innerHTML = '';
+            lowerMultiplesContainer.innerHTML = '';
+            
+            const column1 = document.createElement('div');
+            column1.className = 'multiples-column';
+            
+            const column2 = document.createElement('div');
+            column2.className = 'multiples-column';
+            
+            const column3 = document.createElement('div');
+            column3.className = 'multiples-column';
+            
+            // 填充第一列 (1.1倍-2.0倍)
+            column1Multipliers.forEach(multiplier => {
+                const row = document.createElement('div');
+                row.className = 'multiple-row';
+                
+                const label = document.createElement('span');
+                label.className = 'multiple-label';
+                label.textContent = `${multiplier}倍`;
+                
+                const value = document.createElement('span');
+                value.className = 'multiple-value above-break-even';
+                value.id = `multiple-${multiplier}`;
+                value.textContent = '0.00';
+                
+                row.appendChild(label);
+                row.appendChild(value);
+                column1.appendChild(row);
+            });
+            
+            // 填充第二列 (2.1倍-3.0倍)
+            column2Multipliers.forEach(multiplier => {
+                const row = document.createElement('div');
+                row.className = 'multiple-row';
+                
+                const label = document.createElement('span');
+                label.className = 'multiple-label';
+                label.textContent = `${multiplier}倍`;
+                
+                const value = document.createElement('span');
+                value.className = 'multiple-value above-break-even';
+                value.id = `multiple-${multiplier}`;
+                value.textContent = '0.00';
+                
+                row.appendChild(label);
+                row.appendChild(value);
+                column2.appendChild(row);
+            });
+            
+            // 填充第三列 (3.1倍-4.0倍)
+            column3Multipliers.forEach(multiplier => {
+                const row = document.createElement('div');
+                row.className = 'multiple-row';
+                
+                const label = document.createElement('span');
+                label.className = 'multiple-label';
+                label.textContent = `${multiplier}倍`;
+                
+                const value = document.createElement('span');
+                value.className = 'multiple-value above-break-even';
+                value.id = `multiple-${multiplier}`;
+                value.textContent = '0.00';
+                
+                row.appendChild(label);
+                row.appendChild(value);
+                column3.appendChild(row);
+            });
+            
+            multiplesContainer.appendChild(column1);
+            multiplesContainer.appendChild(column2);
+            multiplesContainer.appendChild(column3);
+            
+            // 填充低倍数区域 (0.4-0.9倍)
+            lowerMultipliers.forEach(multiplier => {
+                const item = document.createElement('div');
+                item.className = 'lower-multiple-item';
+                
+                const label = document.createElement('div');
+                label.className = 'lower-multiple-label';
+                label.textContent = `${multiplier}倍`;
+                
+                const value = document.createElement('div');
+                value.className = 'lower-multiple-value';
+                value.id = `lower-multiple-${multiplier}`;
+                value.textContent = '0.00';
+                
+                item.appendChild(label);
+                item.appendChild(value);
+                lowerMultiplesContainer.appendChild(item);
+            });
+        }
+        
+        // 计算ROI函数
+        function calculateROI() {
+            const commissionRate = parseFloat(commissionRateInput.value) / 100;
+            const splitRatio = parseFloat(splitRatioInput.value) / 100;
+            let returnRate = parseFloat(returnRateInput.value) / 100;
+            
+            if (isNaN(commissionRate) || isNaN(splitRatio) || isNaN(returnRate) ||
+                commissionRate <= 0 || splitRatio <= 0 || returnRate < 0 || returnRate >= 1) {
+                startupROI.textContent = "0.00";
+                breakEvenROI.textContent = "0.00";
+                awesomeROI.textContent = "0.00";
+                
+                updateMultiplesDisplay();
+                return;
+            }
+            
+            // 根据新公式计算
+            const breakEven = 1 / (commissionRate * splitRatio * (1 - returnRate) * 0.9);
+            const startup = breakEven * 0.8;
+            // 牛逼ROI新公式：保本ROI*1.3
+            const awesome = breakEven * 1.3;
+            
+            startupROI.textContent = startup.toFixed(2);
+            breakEvenROI.textContent = breakEven.toFixed(2);
+            awesomeROI.textContent = awesome.toFixed(2);
+            
+            if (!roiToggle.checked) {
+                currentRoiValue = breakEven;
+                updateMultiplesDisplay();
+            }
+            
+            calculateInvestmentReturn();
+        }
+        
+        // 更新倍数显示
+        function updateMultiplesDisplay() {
+            // 更新高倍数显示
+            column1Multipliers.forEach(multiplier => {
+                const value = currentRoiValue * multiplier;
+                document.getElementById(`multiple-${multiplier}`).textContent = value.toFixed(2);
+            });
+            
+            column2Multipliers.forEach(multiplier => {
+                const value = currentRoiValue * multiplier;
+                document.getElementById(`multiple-${multiplier}`).textContent = value.toFixed(2);
+            });
+            
+            column3Multipliers.forEach(multiplier => {
+                const value = currentRoiValue * multiplier;
+                document.getElementById(`multiple-${multiplier}`).textContent = value.toFixed(2);
+            });
+            
+            // 更新低倍数显示
+            lowerMultipliers.forEach(multiplier => {
+                const value = currentRoiValue * multiplier;
+                document.getElementById(`lower-multiple-${multiplier}`).textContent = value.toFixed(2);
+            });
+        }
+        
+        // 初始计算一次
+        initMultiplesDisplay();
+        calculateROI();
+    </script>
+</body>
+</html>
